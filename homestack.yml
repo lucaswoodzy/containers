@@ -57,24 +57,6 @@ services:
     ports:
       - 8989:8989
     restart: unless-stopped
-  duplicacy:
-    container_name: duplicacy
-    hostname: duplicacy
-    image: hotio/duplicacy
-    ports:
-      - "3875:3875"
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - UMASK=002
-      - TZ=Australia/Sydney
-      - COMPOSE_CONVERT_WINDOWS_PATHS=1
-    volumes:
-      - /home/woodzy/.config/duplicacy:/config
-      - /home/woodzy/.config/duplicacy/cache:/cache
-      - /home/woodzy/.config/duplicacy/logs:/logs
-      - /data:/data
-    restart: unless-stopped
   tautulli:
     container_name: tautulli
     image: hotio/tautulli
@@ -247,7 +229,7 @@ services:
       - /data/mirror/minecraft_nuggo:/data
 
   mongo:
-    image: mongo:4.4
+    image: mongo:latest
     container_name: mongo
     hostname: mongo
     user: '1000:1000'
