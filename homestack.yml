@@ -1,0 +1,295 @@
+version: '2.4'
+services:
+  jackett:
+    image: hotio/jackett
+    container_name: jackett
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Australia/Sydney
+      - COMPOSE_CONVERT_WINDOWS_PATHS=1
+    volumes:
+      - /home/woodzy/.config/Jackett/:/config
+      - /data/:/data
+    ports:
+      - 9117:9117
+    restart: unless-stopped
+  bind:
+    restart: always
+    image: sameersbn/bind:9.11.3-20190706
+    environment:
+      - PUID=1000
+      - GUID=1000
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+      - "10000:10000/tcp"
+    volumes:
+      - /data/minecraft_switch_dns_hack:/data
+    networks:
+      macvlan:
+        ipv4_address: 192.168.10.155
+  radarr:
+    image: hotio/radarr
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Australia/Sydney
+      - COMPOSE_CONVERT_WINDOWS_PATHS=1
+    volumes:
+      - /home/woodzy/.config/Radarr/:/config
+      - /data/:/data
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+  sonarr:
+    image: hotio/sonarr
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Australia/Sydney
+      - COMPOSE_CONVERT_WINDOWS_PATHS=1
+    volumes:
+      - /home/woodzy/.config/NzbDrone/:/config
+      - /data/:/data
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+  duplicacy:
+    container_name: duplicacy
+    hostname: duplicacy
+    image: hotio/duplicacy
+    ports:
+      - "3875:3875"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Australia/Sydney
+      - COMPOSE_CONVERT_WINDOWS_PATHS=1
+    volumes:
+      - /home/woodzy/.config/duplicacy:/config
+      - /home/woodzy/.config/duplicacy/cache:/cache
+      - /home/woodzy/.config/duplicacy/logs:/logs
+      - /data:/data
+    restart: unless-stopped
+  tautulli:
+    container_name: tautulli
+    image: hotio/tautulli
+    ports:
+      - "8181:8181"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Australia/Sydney
+      - COMPOSE_CONVERT_WINDOWS_PATHS=1
+    volumes:
+      - /home/woodzy/.config/tautulli:/config
+    restart: unless-stopped
+  leigh_the_cunt:
+    image: ghcr.io/linuxserver/ubooquity
+    container_name: leigh_the_cunt
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - COMPOSE_CONVERT_WINDOWS_PATHS=1
+    volumes:
+      - /home/woodzy/.config/ubooquity:/config
+      - /data/virtual/media/books:/books
+      - /data/virtual/media/:/comics
+    ports:
+      - 2202:2202
+      - 2203:2203
+    restart: unless-stopped
+  mylar3:
+    image: ghcr.io/linuxserver/mylar3
+    container_name: mylar3
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - COMPOSE_CONVERT_WINDOWS_PATHS=1
+    volumes:
+      - /home/woodzy/.config/mylar3:/config
+      - /data/virtual/media/comics:/comics
+      - /data/virtual/incoming/mylar:/downloads
+    ports:
+      - 8090:8090
+    restart: unless-stopped
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Sydney/Australia
+    ports:
+      - "${PORT:-8191}:8191"
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+    restart: unless-stopped
+
+  deluge:
+    container_name: deluge
+    image: binhex/arch-delugevpn
+    ports:
+      - "8112:8112"
+      - "8118:8118"
+      - "58846:58846"
+      - "58946:58946"
+    volumes:
+      - /data/mirror/deluge_config:/config
+      - /data:/data
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      VPN_ENABLED: "yes"
+      VPN_USER: p9480123
+      VPN_PASS: BUXP8sxy8j
+      VPN_PROV: pia
+      VPN_OPTIONS:
+      STRICT_PORT_FORWARD: "yes"
+      ENABLE_PRIVOXY: "yes"
+      LAN_NETWORK: 192.168.10.0/24
+      NAME_SERVERS: 1.1.1.1
+      DELUGE_DAEMON_LOG_LEVEL: info
+      DELUGE_WEB_LOG_LEVEL: info
+      ADDITIONAL_PORTS: 1234
+      UMASK: 000
+      PUID: 1000
+      PGID: 1000
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+
+  unpackerr:
+    image: golift/unpackerr
+    container_name: unpackerr
+    volumes:
+      - /data:/data
+    restart: always
+    user: 1000:1000
+    environment:
+      - PUID=1000
+      - GUID=1000
+      - UN_RADARR_0_URL=http://192.168.10.254:7878
+      - UN_RADARR_0_API_KEY=4a9dd98427ef4d7fb341ab07aee604cc
+      - UN_RADARR_0_PATHS_0=/data/media/incomplete/
+      - UN_RADARR_0_PROTOCOLS=torrent
+      - UN_RADARR_0_TIMEOUT=10s
+      - UN_RADARR_0_DELETE_ORIG=false
+      - UN_RADARR_0_DELETE_DELAY=5m
+      - UN_SONARR_0_URL=http://192.168.10.254:8989
+      - UN_SONARR_0_API_KEY=4edb818c0c8a4695bbe0cfc7daca8b2a
+      - UN_SONARR_0_PATHS_0=/data/media/incomplete/
+      - UN_SONARR_0_PROTOCOLS=torrent
+      - UN_SONARR_0_TIMEOUT=10s
+      - UN_SONARR_0_DELETE_ORIG=false
+      - UN_SONARR_0_DELETE_DELAY=5m
+  watchtower:
+    image: containrrr/watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_LABEL_ENABLE=false
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+    command: --interval 30
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:latest
+    container_name: heimdall
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /data/mirror/heimdall:/config
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
+
+  petio:
+    image: ghcr.io/petio-team/petio:latest
+    container_name: petio
+    hostname: petio
+    ports:
+      - '7777:7777'
+    user: '1000:1000'
+    depends_on:
+      - mongo
+    environment:
+      - TZ=Etc/UTC
+    volumes:
+      - /data/mirror/petio_config:/app/api/config
+      - /data/logs/petio:/app/logs
+    restart: unless-stopped
+  mcnuggo:
+    image: itzg/minecraft-server
+    ports:
+      - 25565:25565
+    environment:
+      - EULA=TRUE
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+    volumes:
+      - /data/mirror/minecraft_nuggo:/data
+
+  mongo:
+    image: mongo:4.4
+    container_name: mongo
+    hostname: mongo
+    user: '1000:1000'
+    volumes:
+      - /data/petio_mongodb:/data/db
+    restart: unless-stopped
+
+  znc:
+    image: lscr.io/linuxserver/znc:latest
+    container_name: znc
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /data/mirror/znc_config/:/config
+    ports:
+      - 6501:6501
+    restart: unless-stopped
+  plex-meta-manager:
+    image: lscr.io/linuxserver/plex-meta-manager:latest
+    container_name: plex-meta-manager
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Australia/Sydney
+      - PMM_CONFIG=/config/config.yml #optional
+      - PMM_TIME=03:00 #optional
+      - PMM_RUN=False #optional
+      - PMM_TEST=False #optional
+      - PMM_NO_MISSING=False #optional
+    volumes:
+      - /data/mirror/plexmetamanager/config:/config
+    restart: unless-stopped
+networks:
+  macvlan:
+    driver: macvlan
+    driver_opts:
+      parent: virbr1
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.10.0/24
+          gateway: 192.168.10.244
+

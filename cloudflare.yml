@@ -1,0 +1,13 @@
+services:
+  cloudflared:
+      image: cloudflare/cloudflared
+      container_name: cloudflared
+      network_mode: host
+      command: tunnel --no-autoupdate run
+      environment:
+        - PUID=1000
+        - PGID=1000
+        - COMPOSE_CONVERT_WINDOWS_PATHS=1
+      volumes:
+        - /home/woodzy/.config/cloudflared:/etc/cloudflared
+      restart: unless-stopped
