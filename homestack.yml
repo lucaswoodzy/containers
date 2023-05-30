@@ -14,21 +14,21 @@ services:
     ports:
       - 9117:9117
     restart: unless-stopped
-  bind:
-    restart: always
-    image: sameersbn/bind:9.11.3-20190706
-    environment:
-      - PUID=1000
-      - GUID=1000
-    ports:
-      - "53:53/udp"
-      - "53:53/tcp"
-      - "10000:10000/tcp"
-    volumes:
-      - /data/minecraft_switch_dns_hack:/data
-    networks:
-      macvlan:
-        ipv4_address: 192.168.10.155
+#  bind:
+#    restart: always
+#    image: sameersbn/bind:latest
+#    environment:
+#      - PUID=1000
+#      - GUID=1000
+#    ports:
+#      - "53:53/udp"
+#      - "53:53/tcp"
+#      - "10000:10000/tcp"
+#    volumes:
+#      - /data/minecraft_switch_dns_hack:/data
+#    networks:
+#      macvlan:
+#        ipv4_address: 192.168.10.155
   radarr:
     image: hotio/radarr
     container_name: radarr
