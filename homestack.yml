@@ -214,7 +214,18 @@ services:
       - 80:80
       - 443:443
     restart: unless-stopped
-
+  prowlarr:
+    container_name: prowlarr
+    image: cr.hotio.dev/hotio/prowlarr
+    ports:
+      - "9696:9696"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Etc/UTC
+    volumes:
+      - /data/mirror/prowlarr-config:/config
   petio:
     image: ghcr.io/petio-team/petio:latest
     container_name: petio
